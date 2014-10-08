@@ -1,0 +1,17 @@
+<?php
+$pivotes=array(
+	"clientes"=>"id_cliente",
+	"proveedores"=>"id_proveedor",
+	"cotizaciones"=>"id_cotizacion",
+	"eventos"=>"id_evento",
+	"areas"=>"id_area",
+	"familias"=>"id_familia",
+	"subfamilias"=>"id_subfamilia",
+	"proveedores_productos"=>"id_producto",
+	"articulos"=>"id_articulo",
+	"paquetes"=>"id_paquete",
+	"unidades"=>"id_tabla",
+	"tipo_evento"=>"id_tipo",
+	"salones"=>"id_salon",
+);
+?>

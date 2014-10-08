@@ -1,0 +1,65 @@
+@charset "utf-8";
+@import url(http://fonts.googleapis.com/css?family=Francois+One);
+/* CSS de index.php */
+*{
+	padding:0;
+	margin:0;
+	position:relative;
+	font-family: 'Francois One', sans-serif;
+}
+body, html{
+	height:100%;
+	width:100%;
+}
+table{
+	width:100%;
+	height:100%;
+	background-image:url(../img/fondo.png);
+	background-size:cover;
+}
+.app_name{
+	position:fixed;
+	top:5px;
+	left:10px;
+	color:#FFF;
+	z-index:100;
+}
+.vendor_name{
+	position:fixed;
+	bottom:5px;
+	right:10px;
+	z-index:100;
+}
+.logo_amer{
+	position:fixed;
+	z-index:100;
+	top:10px;
+	right:15px;
+	background-image:url(../img/americanet.png);
+	background-size:cover;
+	width:200px;
+	height:100px;
+}
+.titulo{
+	font-size:2.5em;
+	font-weight:bold;
+	background-color:#06C;
+	color:#FFF;
+	padding:0 10px;
+	margin-bottom:5px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
+form{
+	display:inline-block;
+}
+input, select, textarea{
+	font-size:1.3em;
+	padding:3px;
+	margin: 2px;
+	text-align:center;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
