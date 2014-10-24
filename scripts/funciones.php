@@ -1,5 +1,6 @@
 <?php //modulo de funciones varias
 date_default_timezone_set("America/Monterrey");
+set_time_limit(300);
 function esteMes(){
 	echo date("n");
 }
@@ -51,7 +52,7 @@ function actInv($dsnw,$userw,$passw,$optPDO){
 		foreach($res->fetchAll(PDO::FETCH_ASSOC) as $d){
 			$item[$d["id_articulo"]]["entradas"]=$d["entradas"];
 		}
-		//3.- saber las salidas no terminadas
+		//3.- saber las salidas realizadas en el inventario
 		$sql="SELECT
 			id_articulo,
 			SUM(cantidad) as salidas
@@ -68,6 +69,7 @@ function actInv($dsnw,$userw,$passw,$optPDO){
 			$totalInv=0;
 			$totalInv=$data["almacen"]+$data["entradas"]-$data["salidas"];
 			$id_item=$data["id_item"];
+			//echo "UPDATE almacen_inventario SET cantidad=$totalInv WHERE id_item=$id_item;";
 			$bd->query("UPDATE almacen_inventario SET cantidad=$totalInv WHERE id_item=$id_item;");
 		}
 	}catch(PDOException $err){

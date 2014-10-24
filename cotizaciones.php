@@ -82,7 +82,8 @@ table{
 	color:#070;
 }
 #hacer .precio{
-	display:none;
+	/*display:none;*/
+	width:50px;
 }
 
 .divplazos, .divbancos{
@@ -245,7 +246,7 @@ table{
             <input type="text" class="restante numerico" readonly="readonly" />
         </div>
         <div align="right">
-        	<a href="scripts/pdf.php" target="_blank">Imprimir cotización</a>
+        	<a id="imp_cot" href="" target="_blank">Imprimir cotización</a>
             <input type="button" class="crearevento" value="Pasar a evento" onclick="pasarevento();" />
         </div>
     </div>
@@ -352,7 +353,7 @@ table{
 			echo '<td class="bfechaevento">'.varFechaAbrNorm($d["fechaevento"]).'</td>';
 			echo '<td class="bfechamontaje">'.varFechaAbrNorm($d["fechamontaje"]).'</td>';
 			echo '<td class="bfechadesmont">'.varFechaAbrNorm($d["fechadesmont"]).'</td>';
-			echo '<td><img class="accion" src="img/edit.png" data-cve="'.$d["clave"].'" onclick="editar(this);" height="20" /><img class="accion eliminar" src="img/cruz.png" data-cve="'.$folio.'" height="20" /></td>';
+			echo '<td><img class="accion" src="img/edit.png" data-cve="'.$d["clave"].'" data-id="'.$folio.'" onclick="editar(this);" height="20" /><img class="accion eliminar" src="img/cruz.png" data-cve="'.$folio.'" height="20" /></td>';
 			echo '</tr>';
 		}
 		$bd=NULL;

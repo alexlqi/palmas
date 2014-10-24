@@ -13,7 +13,7 @@ try{
 		$campos[$a]=$c["Field"];
 	}
 	
-	$res=$bd->query("SELECT * FROM proveedores WHERE id_empresa=$empresaid AND nombre LIKE '%$term%';");
+	$res=$bd->query("SELECT * FROM proveedores WHERE id_empresa=$empresaid AND nombre LIKE '%$term%' OR clave = '$term';");
 	foreach($res->fetchAll(PDO::FETCH_ASSOC) as $i=>$v){
 		$r[$i]["label"]=$v["nombre"];
 		$r[$i]["form"]="#f_clientes";

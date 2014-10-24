@@ -39,11 +39,10 @@ $(document).ready(function(e) {
 	id_cotizacion=$(".id_cotizacion").first().val();
 	$(".agregar_articulo").click(function(){
 		id=$(".lista_articulos").length+1;
-		$("#articulos").append('<tr id="'+id+'" class="lista_articulos"><td style="background-color:#FFF;"><input type="hidden" class="id_item" value="" /><input type="hidden" class="id_cotizacion" value="" /><input type="hidden" class="id_articulo" /><input type="hidden" class="id_paquete" /></td><td><input class="cantidad" type="text" size="7" onkeyup="cambiar_cant('+id+')" /></td><td><input class="articulo_nombre text_full_width" onkeyup="art_autocompletar('+id+');" /></td><td>$<span class="precio"></span></td><td>$<span class="total"></span></td><td><span class="guardar_articulo" onclick="guardar_art('+id+')"></span><span class="eliminar_articulo" onclick="eliminar_art('+id+')"></span></td></tr>');
+		$("#articulos").append('<tr id="'+id+'" class="lista_articulos"><td style="background-color:#FFF;"><input type="hidden" class="id_item" value="" /><input type="hidden" class="id_cotizacion" value="" /><input type="hidden" class="id_articulo" /><input type="hidden" class="id_paquete" /></td><td><input class="cantidad" type="text" size="7" onkeyup="cambiar_cant('+id+')" /></td><td><input class="articulo_nombre text_full_width" onkeyup="art_autocompletar('+id+');" /></td><td>$<input type="text" class="precio" /></td><td>$<span class="total"></span></td><td><span class="guardar_articulo" onclick="guardar_art('+id+')"></span><span class="eliminar_articulo" onclick="eliminar_art('+id+')"></span></td></tr>');
 		$.each($(".lista_articulos"),function(i,v){
 			$(this).find(".id_cotizacion").val(id_cotizacion);
 		});
-		$(".cantidad").numeric();
 	});
 	
 	//script para buscr cotización por clave
@@ -149,6 +148,10 @@ $(document).ready(function(e) {
 function editar(e){
 	s=$(e);
 	$(".clave").val(s.attr("data-cve"));
+	id=s.attr("data-id");
+	_link=$("#imp_cot");
+	href="scripts/pdf_cotizacion.php?cot="+id;
+	_link.attr("href",href);
 	buscarClaveGet();
 	$(".hacer a")[0].click();
 }
@@ -168,7 +171,7 @@ function guardar_art(elemento){
 		id_articulo=$("#"+elemento+" .id_articulo").val();
 		id_paquete=$("#"+elemento+" .id_paquete").val();
 		cantidad=$("#"+elemento+" .cantidad").val();
-		precio=$("#"+elemento+" .precio").html();
+		precio=$("#"+elemento+" .precio").val();
 		total=$("#"+elemento+" .total").html();
 		$.ajax({
 			url:'scripts/guarda_articulo_cot.php',
@@ -325,7 +328,7 @@ function darprecio(e){
 	precio=$(e).val();
 	$(e).parent().parent().removeClass("verde_ok");
 	cant=$(e).parent().parent().find(".cantidad").val();
-	$(e).siblings(".precio").html(precio);
+	$(e).siblings(".precio").val(precio);
 	total=(precio*1)*(cant*1);
 	$(e).parent().parent().find(".total").html(total);
 }

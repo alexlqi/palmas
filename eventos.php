@@ -12,6 +12,11 @@ include("scripts/func_form.php");
 <script src="js/formularios.js"></script>
 <style>
 /* estilos para formularios */
+.flota_der{
+	position:absolute;
+	bottom:0px;
+	right:10px;
+}
 .alejar_izq{
 	margin-left:10px;
 }
@@ -78,7 +83,8 @@ table{
 	color:#070;
 }
 #hacer .precio{
-	display:none;
+	/*display:none;*/
+	width:50px;
 }
 .divplazos, .divbancos{
 	display:inline-block;
@@ -90,6 +96,10 @@ table{
 	display:inline-block;
 	width:100px;
 	margin-right:5px;
+}
+#observaciones{
+	width:50%;
+	height:100px;
 }
 </style>
 <div id="contenido">
@@ -227,10 +237,12 @@ table{
             </div>
         </div>
     </div>
-    <div align="right">
+    <div align="left" class="formularios">
+    <h3 class='titulo_form'>Observaciones</h3>
       <form action="scripts/nota_venta_pdf.php" target="_blank">
         <input type="hidden" name="id_evento" class="id_evento" value="" />
-        <input type="submit" value="Vista de impresión" />
+        <textarea name="obs" id="observaciones" placeholder="Anota aquí las observaciones de la nota"></textarea><br />
+        <input type="submit" value="Vista de impresión" class="flota_der" />
       </form>
     </div>
   </div>

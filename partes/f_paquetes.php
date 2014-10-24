@@ -85,6 +85,7 @@ try{
     <div align="right">
         <input type="button" class="guardar" value="GUARDAR" data-m="pivote">
         <input type="button" class="modificar" value="MODIFICAR" style="display:none;">
+        <input type="button" class="eliminar" value="ELIMINAR">
         <input type="button" class="volver" value="VOLVER">
     </div>
 <div id="articulos" class="formularios">

@@ -7,6 +7,7 @@ $ocupaUser=array(
 	"paquetes"=>false,
 	"cotizaciones"=>false,
 	"articulos"=>false,
+	"unidades"=>false,
 );
 
 ?>

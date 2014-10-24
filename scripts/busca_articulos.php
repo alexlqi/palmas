@@ -8,7 +8,10 @@ try{
 	$bd=new PDO($dsnw, $userw, $passw, $optPDO);
 	//sacar los campos para acerlo más autoámtico	
 	$sqlArt="SELECT 
-		CONCAT(articulos.nombre,'(',areas.nombre,' > ',familias.nombre,' > ',subfamilias.nombre,')') as label,
+		CONCAT(articulos.nombre,' (',areas.nombre,')') as label,
+		areas.nombre as area,
+		familias.nombre as familia,
+		subfamilias.nombre as subfamilia,
 		articulos.id_articulo,
 		precio1 as p1,
 		precio2 as p2,
@@ -19,9 +22,9 @@ try{
 		subfamilias.nombre
 	FROM articulos
 	INNER JOIN listado_precios ON articulos.id_articulo=listado_precios.id_articulo
-	INNER JOIN areas ON articulos.area= areas.id_area
-	INNER JOIN familias ON articulos.familia= familias.id_familia
-	INNER JOIN subfamilias ON articulos.subfamilia= subfamilias.id_subfamilia
+	LEFT JOIN areas ON articulos.area= areas.id_area
+	LEFT JOIN familias ON articulos.familia= familias.id_familia
+	LEFT JOIN subfamilias ON articulos.subfamilia= subfamilias.id_subfamilia
 	WHERE articulos.id_empresa=$empresaid AND articulos.nombre LIKE '%$term%';";
 	
 	$sqlPaq="SELECT 
@@ -44,7 +47,17 @@ try{
 			<option value="'.$v["p2"].'">$'.$v["p2"].'</option>
 			<option value="'.$v["p3"].'">$'.$v["p3"].'</option>
 			<option value="'.$v["p4"].'">$'.$v["p4"].'</option>
-		</select><span class="precio"></span>';
+		</select><input type="text" class="precio numerico" />';
+		$precios.='<script>(function(){$(".precio").numeric();}());';
+		$precios.='$(".cantidad, .precio").keyup(function(e){
+			//para el <th>
+			row=$(this).parent().parent();
+			cantidad=row.find(".cantidad").val()*1;
+			precio=row.find(".precio").val()*1;
+			total=cantidad*precio;
+			//escribe el total
+			row.find(".total").html(total);
+		});</script>';
 		unset($v["p1"],$v["p2"],$v["p3"],$v["p4"]);
 		$v["precio"]=$precios;
 		$r[$i]=$v;
@@ -59,7 +72,17 @@ try{
 			<option value="'.$v["p2"].'">$'.$v["p2"].'</option>
 			<option value="'.$v["p3"].'">$'.$v["p3"].'</option>
 			<option value="'.$v["p4"].'">$'.$v["p4"].'</option>
-		</select><span class="precio"></span>';
+		</select><input type="text" class="precio numerico" />';
+		$precios.='<script>(function(){$(".precio").numeric();}());';
+		$precios.='$(".cantidad, .precio").keyup(function(e){
+			//para el <th>
+			row=$(this).parent().parent();
+			cantidad=row.find(".cantidad").val()*1;
+			precio=row.find(".precio").val()*1;
+			total=cantidad*precio;
+			//escribe el total
+			row.find(".total").html(total);
+		});</script>';
 		unset($v["p1"],$v["p2"],$v["p3"],$v["p4"]);
 		$v["precio"]=$precios;
 		$r[$i]=$v;

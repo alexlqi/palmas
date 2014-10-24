@@ -32,18 +32,10 @@ function folio($digitos,$folio){
 	return $salida;
 }
 
-//tamaño carta alto:279.4 ancho:215.9
-$heightCarta=550;
-$widthCarta=400;
-$celdas=12;
-$widthCell=$widthCarta/$celdas;
-
-$mmCartaH=pxtomm($heightCarta);
-$mmCartaW=pxtomm($widthCarta);
-
 //sacar los datos del cliente
 $error="";
 if(isset($_GET["id_evento"])){
+	$obs=$_GET["obs"];
 	$eve=$_GET["id_evento"];
 	try{
 		$bd=new PDO($dsnw,$userw,$passw,$optPDO);
@@ -51,6 +43,8 @@ if(isset($_GET["id_evento"])){
 		$sql="SELECT 
 			t1.id_evento,
 			t1.fechaevento,
+			t1.fechamontaje,
+			t1.fechadesmont,
 			t1.id_cliente,
 			t2.nombre,
 			t3.direccion,
@@ -116,14 +110,31 @@ if(isset($_GET["id_evento"])){
 		}
 		//para saber el anticipo
 		$emp_eve=$emp."_".$eve;
-		$sql="SELECT cantidad FROM eventos_pagos WHERE id_evento='$emp_eve' AND plazo='anticipo';";
+		$sql="SELECT SUM(cantidad) as pagado FROM eventos_pagos WHERE id_evento='$emp_eve';";
 		$res=$bd->query($sql);
 		$res=$res->fetchAll(PDO::FETCH_ASSOC);
-		$anticipo=$res[0]["cantidad"];
+		$pagado=$res[0]["pagado"];
 	}catch(PDOException $err){
 		$error= $err->getMessage();
 	}
 }
+
+//tamaño carta alto:279.4 ancho:215.9
+//modificación del alto y ancho dependiendo de la cantidad de artículos
+$filas=count($articulos);
+if($filas>=1 and $filas<4){
+	$heightCarta=520;
+	$widthCarta=400;
+}else{
+	$heightCarta=550+(($filas-3)*10);
+	$widthCarta=400+(($filas-3)*5);
+}
+$mmCartaH=pxtomm($heightCarta);
+$mmCartaW=pxtomm($widthCarta);
+
+$celdas=12;
+$widthCell=$widthCarta/$celdas;
+
 ob_start();
 ?>
 <?php if($error==""){ ?>
@@ -192,14 +203,13 @@ th{
     </table>
 </td></tr>
 </table>
-
 <table cellpadding="0" cellspacing="0" style=" font-size:11px;width:100%; margin-top:5px;">
 	<tr>
     	<td style="width:27%; font-size:10px;">Fecha de entrega:</td>
-        <td style="width:73%;"><div style="margin-left:5px; border-bottom:1px solid #000;"><input style="width:100%; border:0;" type="text" value="<?php echo varFechaExtensa(date("Y-m-d H:i:s"))." a ".date("h:i a",strtotime(date("Y-m-d H:i:s"))+7200); ?>" /></div></td>
+        <td style="width:73%; font-size:10px;"><div style="margin-left:5px; border-bottom:1px solid #000;"><input style="width:100%; border:0;" type="text" value="<?php echo varFechaExtensa($evento["fechamontaje"])." a ".date("h:i a",strtotime($evento["fechamontaje"])+7200); ?>" /></div></td>
     </tr><tr>
         <td style="width:27%; font-size:10px;">Fecha para recoger:</td>
-        <td style="width:73%;"><div style="margin-left:5px; border-bottom:1px solid #000;"><input style="width:100%; border:0;" type="text" value="<?php echo varFechaExtensa(date("Y-m-d H:i:s"))." a ".date("h:i a",strtotime(date("Y-m-d H:i:s"))+7200); ?>" /></div></td>
+        <td style="width:73%; font-size:10px;"><div style="margin-left:5px; border-bottom:1px solid #000;"><input style="width:100%; border:0;" type="text" value="<?php echo varFechaExtensa($evento["fechadesmont"])." a ".date("h:i a",strtotime($evento["fechadesmont"])+7200); ?>" /></div></td>
     </tr>
 </table>
 <table border="0" cellspacing="0.8" style="width:100%;background-color:#000;font-size:10px;margin-top:5px;">
@@ -230,18 +240,18 @@ th{
     <tr>
         <td style="width:15%;text-align:center;"> </td>
         <td style="width:55%;"> </td>
-        <td style="width:15%;text-align:right;">Anticipo:</td>
-        <td style="width:15%;text-align:center;"><?php echo $anticipo; ?></td>
+        <td style="width:15%;text-align:right;">Pagado:</td>
+        <td style="width:15%;text-align:center;"><?php echo $pagado; ?></td>
     </tr>
     <tr>
         <td style="width:15%;text-align:center;"> </td>
         <td style="width:55%;"> </td>
         <td style="width:15%;text-align:right;">Restante:</td>
-        <td style="width:15%;text-align:center;"><?php echo $total-$anticipo; ?></td>
+        <td style="width:15%;text-align:center;"><?php echo $total-$pagado; ?></td>
     </tr>
 </table>
 <div>Observaciones:</div>
-<textarea cols="50" style="font-size:10px;"></textarea>
+<textarea cols="50" style="font-size:10px;"><?php echo $obs; ?></textarea>
 <p style="font-size:10px;">NOTA: El cliente <u><?php echo $cliente; ?></u> se hace responsable por cualquier daño o maltrato en el equipo o material rentado, pagando el costo del mismo. La renta es hasta por 12 horas, El acomodo es por parte del cliente.</p>
 <table border="0" cellpadding="0" cellspacing="0" style="font-size:11px; width:100%; margin-top:5px;">
 	<tr>

@@ -28,6 +28,7 @@ try{
 		areas.id_area,
 		familias.id_familia,
 		subfamilias.id_subfamilia,
+		articulos.perece,
 		listado_precios.*
 	FROM articulos
 	LEFT JOIN listado_precios ON articulos.id_articulo=listado_precios.id_articulo

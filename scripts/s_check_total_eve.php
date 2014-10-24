@@ -8,7 +8,6 @@ $id_empresa=$_SESSION["id_empresa"];
 $id_emp_eve=$id_empresa."_".$id;
 
 try{
-	$sql="";
 	$bd=new PDO($dsnw,$userw,$passw,$optPDO);
 	
 	$sql="SELECT 
@@ -30,7 +29,7 @@ try{
 		
 		$r["continuar"]=true;
 		$r["total"]=$total;
-		if(($total-$pagado)==0){
+		if(($total-$pagado)<=0){
 			$bd->query("UPDATE eventos SET estatus=2 WHERE id_evento=$id;");
 		}
 		$r["restante"]=$total-$pagado;

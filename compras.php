@@ -10,7 +10,9 @@ try{
 		compras.fecha,
 		compras.estatus,
 		eventos.id_evento,
-		eventos.nombre
+		eventos.nombre,
+		eventos.fechamontaje,
+		eventos.fechadesmont
 	FROM compras
 	INNER JOIN eventos ON compras.id_evento=eventos.id_evento
 	WHERE compras.id_empresa=$empresaid;";
@@ -30,6 +32,7 @@ try{
 		compras_articulos.cantidad,
 		articulos.nombre,
 		articulos.unidades,
+		articulos.perece,
 		listado_precios.compra
 	FROM compras_articulos
 	INNER JOIN articulos ON compras_articulos.id_articulo=articulos.id_articulo
@@ -69,6 +72,8 @@ table{
     <form id="forma<?php echo $id; ?>" class="f_compra" style="width:80%; margin: 0 auto;">
         <input type="hidden" class="id_compra" name="compra[id_compra]" value="<?php echo $id; ?>" />
         <input type="hidden" class="id_evento" name="compra[id_evento]" value="<?php echo $v["id_evento"]; ?>" />
+        <input type="hidden" class="fechamontaje" name="compra[mont]" value="<?php echo $v["fechamontaje"]; ?>" />
+        <input type="hidden" class="fechadesmont" name="compra[desmont]" value="<?php echo $v["fechadesmont"]; ?>" />
         <label>Método de entrada</label><select class="entrada requerido" data-campo="Metodo de entrada" name="compra[metodo]">
         	<option value="">Elige Método</option>
         	<option value="renta">Renta</option>
@@ -107,6 +112,7 @@ table{
             	<td>
 					<?php echo $vv["cantidad"]." ".$vv["unidades"]; ?>
                     <input type="hidden" name="compra[articulos][<?php echo $vv["id_articulo"]; ?>][cantidad]" value="<?php echo $vv["cantidad"]; ?>" />
+                    <input type="hidden" name="compra[articulos][<?php echo $vv["id_articulo"]; ?>][perece]" value="<?php echo $vv["perece"]; ?>" />
                 </td>
             	<td><label>Proveedor:</label><select class="proveedores requerido" data-campo="Proveedor de <?php echo $vv["nombre"]?>" name="compra[articulos][<?php echo $vv["id_articulo"]; ?>][proveedor]">
                     <option value="">Elige proveedor</option>
@@ -151,13 +157,22 @@ table{
 					echo '<td class="estatus">'.$estatus[$v["estatus"]].'</td>';
 					if($v["estatus"]==1){
 						echo '<td>
-							<input type="button" class="enviar" value="Enviar" data-id="'.$id.'" />
-							<input type="button" class="imprimir" value="Imprimir" data-id="'.$id.'" />
-							<input type="button" class="comprar" value="Generar entrada" data-id="'.$id.'" />
-							<input type="button" class="cancelar" value="Cancelar" data-id="'.$id.'" /> 
+							<input type="button" class="enviar" value="Enviar" data-a="enviar" data-id="'.$i.'" onclick="enviar(this);" />
+							<form action="scripts/imprimeCompra.php" method="post" target="_blank" style="display:inline-block">
+							  <input type="hidden" name="compra" value="'.$i.'" />
+							  <input type="submit" value="Imprimir" data-a="imprimir" data-id="'.$i.'" />
+							</form>
+							<input type="button" class="comprar" value="Generar entrada" data-id="'.$i.'" />
+							<input type="button" class="cancelar" value="Cancelar" data-id="'.$i.'" /> 
 						</td>';
 					}elseif($v["estatus"]==2){
-						echo '<td><input type="button" class="enviar" value="Enviar" data-id="'.$id.'" /> </td>';
+						echo '<td>';
+						echo '<input type="button" class="enviar" value="Enviar" data-a="enviar" data-id="'.$i.'" onclick="enviar(this);" /> ';
+						echo '<form action="scripts/imprimeCompra.php" method="post" target="_blank" style="display:inline-block">
+							  <input type="hidden" name="compra" value="'.$i.'" />
+							  <input type="submit" value="Imprimir" data-a="imprimir" data-id="'.$i.'" />
+							</form>';
+						echo '</td>';
 					}else{
 						echo '<td></td>';
 					}

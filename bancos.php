@@ -37,7 +37,7 @@ include("scripts/funciones.php");
         </table>
     </div>
   <?php foreach($bancos as $i=>$d){ ?>
-    <table id="banco<?php echo $i; ?>" class="edocuenta" style="display:none;">
+    <table id="banco<?php echo $i; ?>" class="edocuenta" style="display:none; width:60%; margin:0 auto;">
     	<tr>
         	<td colspan="10"><h1>Estado de Cuenta</h1></td>
         </tr>
@@ -55,7 +55,7 @@ include("scripts/funciones.php");
 			try{
 				$banco=$d["id_banco"];
 				$mov=array();
-				$sql="SELECT * FROM bancos_movimientos WHERE id_empresa=$empresaid AND id_banco=$banco;";
+				$sql="SELECT id_movimiento, movimiento, monto, fecha FROM bancos_movimientos WHERE id_empresa=$empresaid AND id_banco=$banco;";
 				$res=$bd->query($sql);
 				foreach($res->fetchAll(PDO::FETCH_ASSOC) as $dd){
 					$id_mov=$dd["id_movimiento"];
@@ -68,7 +68,30 @@ include("scripts/funciones.php");
 			$bd=NULL;
 		?>
         <tr>
-        	<td colspan="10"><?php var_dump($mov); ?></td>
+        	<td colspan="10">
+            	<table style="width:100%;">
+                	<tr>
+                    	<th>Fecha</th>
+                        <th>Movimiento</th>
+                        <th>Monto</th>
+                    </tr>
+                    <?php 
+						$col1=""; $col2=""; $col3="";
+						$total=0;
+						foreach($mov as $id=>$d){
+							$col1.='<div>'.$d["fecha"].'</div>';
+							$col2.='<div>'.$d["movimiento"].'</div>';
+							$col3.='<div>'.$d["monto"].'</div>';
+							$total+=$d["monto"];
+						}
+					?>
+                    <tr>
+                    	<td><?php echo $col1; ?></td>
+                        <td><?php echo $col2; ?></td>
+                        <td><?php echo $col3; ?></td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
     <?php } ?>

@@ -6,6 +6,7 @@ $contra=$_POST["pass"];
 try{
 if($usuario!="" and $contra!=""){
 	$bd=new PDO($dsnw, $userw, $passw, $optPDO);
+	$bd->query('SET SQL_SAFE_UPDATES=0;');
 	$res=$bd->query("SELECT * FROM usuarios WHERE usuario='$usuario' AND password='$contra';");
 	if($res->rowCount()>0){
 		$res=$res->fetchAll(PDO::FETCH_ASSOC);
@@ -19,7 +20,6 @@ if($usuario!="" and $contra!=""){
 		$_SESSION["categoria"]=$d["categoria"];
 		$_SESSION["comision"]=$d["comision"]*1/100;
 		echo 'Iniciando sesión...<meta http-equiv="refresh" content="0;URL='.LIGA.'home.php" />';
-		echo '<script>(function(){window.location="'.LIGA.'home.php"}())</script>';
 	}else{
 		echo 'Usuario o contraseña equivocadas';
 	}

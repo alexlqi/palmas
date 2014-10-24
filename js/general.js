@@ -36,6 +36,19 @@ $(document).ready(function(e) {
 	$(".numerico").numeric();
 	
 });
+//función para indicar que se está procesando
+function procesando(met,tiempo){
+	if(met=="mostrar"){
+		$("#procesando").fadeIn(200);
+		$("html").css("cursor","wait");
+	}else if(met=="ocultar"){
+		setTimeout(function(){
+			$("#procesando").fadeOut(200);
+			$("html").css("cursor","default");
+		},tiempo);
+	}
+}
+
 //funciones del calendario
 function llenarCalNum(mes,anio){
 	$(".contenido_dia").attr("id","");

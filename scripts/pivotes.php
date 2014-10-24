@@ -13,5 +13,6 @@ $pivotes=array(
 	"unidades"=>"id_tabla",
 	"tipo_evento"=>"id_tipo",
 	"salones"=>"id_salon",
+	"unidades"=>"id_unidad",
 );
 ?>

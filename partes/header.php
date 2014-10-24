@@ -87,6 +87,7 @@ $bd=NULL;
 </head>
 
 <body>
+<div id="procesando">Procesando, por favor espere...</div>
 <div id="alerta_error" class="tabla" align="center" style="display:none;">
     <div class="celda" style="vertical-align:middle;">
         <div class="ui-widget" style="width:300px;">

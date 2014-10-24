@@ -25,6 +25,11 @@ $bbdd=array(
 		"userw"=>"americanetw",
 		"passw"=>"writer1"
 	),
+	"palmas"=>array(
+		"dsnw"=>"mysql:host=localhost; dbname=entropyd_palmas; charset=utf8;",
+		"userw"=>"americanetw",
+		"passw"=>"writer1"
+	),
 );
 
 $dsnw=$bbdd[$a[1]]["dsnw"];

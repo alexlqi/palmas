@@ -3,7 +3,7 @@ header("content-type: application/json");
 include("datos.php");
 include("s_check_inv_compra.php");
 
-$id_empresa=$_SESSION["id_empresa"];
+$id_emp=$id_empresa=$_SESSION["id_empresa"];
 $id_cot=$_POST["id_cotizacion"];
 $total=$_POST["total"];
 $anticipo=$_POST["anticipo"];
@@ -69,8 +69,8 @@ if($id_cot!=""){
 		 #################################*/
 		$sql="SELECT
 			id_cliente,
-			id_articulo,
-			id_paquete,
+			eventos_articulos.id_articulo,
+			eventos_articulos.id_paquete,
 			cantidad,
 			estatus,
 			fechamontaje,
@@ -89,29 +89,46 @@ if($id_cot!=""){
 			$estatus=$v["estatus"];
 			$id_cliente=$v["id_cliente"];
 			
-			//para las salidas
-			if($v["id_articulo"]!=""){
+		//para las salidas
+			//checa si es articulo o paquete
+			if($v["id_articulo"]!=""){ //articulo
 				$sql="INSERT INTO almacen_salidas (id_empresa,id_evento,id_articulo,cantidad,fechamontaje) VALUES ($id_empresa,$id_eve,$id_art,$cantidad,'$montaje');";
-			}else{
+				$bd->query($sql);
+			}else{ //paquete
 				$sql="INSERT INTO 
 					almacen_salidas (id_empresa,id_evento,id_articulo,cantidad,fechamontaje) 
-				SELECT $id_empresa,$id_eve,id_articulo,cantidad,'$montaje' 
+				SELECT $id_empresa,$id_eve,articulos.id_articulo,cantidad*$cantidad as cantidad,'$montaje' 
 				FROM paquetes_articulos
+				INNER JOIN articulos ON paquetes_articulos.id_articulo=articulos.id_articulo
 				WHERE id_paquete=".$v["id_paquete"].";";
+				$bd->query($sql);
 			}
-			$bd->query($sql);
 			
-			//para las entradas
+		//para las entradas
 			if($v["id_articulo"]!=""){
-				$sql="INSERT INTO almacen_entradas (id_empresa,id_evento,id_articulo,cantidad,fechadesmont) VALUES ($id_empresa,$id_eve,$id_art,$cantidad,'$desmontaje');";
+				//paso previo, checar si es perecedero, si no lo es entonces se debe omitir el paso 1
+				$id_art=$v["id_articulo"];
+				$resDos=$bd->query("SELECT perece FROM articulos WHERE id_empresa=$id_emp AND id_articulo=$id_art;");
+				$resDos=$resDos->fetchAll(PDO::FETCH_ASSOC);
+				$perece=$resDos[0]["perece"];
+				if($perece==0){
+					//no es perecedero
+					$sql="INSERT INTO almacen_entradas (id_empresa,id_evento,id_articulo,cantidad,fechadesmont) VALUES ($id_empresa,$id_eve,$id_art,$cantidad,'$desmontaje');";
+					$bd->query($sql);
+				}else{
+					//si es perecedero no vuelve a entrar
+				}
+				
 			}else{
+				//no es perecedero
 				$sql="INSERT INTO 
 					almacen_entradas (id_empresa,id_evento,id_articulo,cantidad,fechadesmont) 
-				SELECT $id_empresa,$id_eve,id_articulo,cantidad,'$desmontaje' 
+				SELECT $id_empresa,$id_eve,articulos.id_articulo,cantidad,'$desmontaje' 
 				FROM paquetes_articulos
-				WHERE id_paquete=".$v["id_paquete"].";";
+				INNER JOIN articulos ON paquetes_articulos.id_articulo=articulos.id_articulo
+				WHERE id_paquete=".$v["id_paquete"]." AND articulos.perece=0;";
+				$bd->query($sql);
 			}
-			$bd->query($sql);
 		}//*/
 		
 		/* ################################

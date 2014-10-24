@@ -39,6 +39,16 @@ try{
 			<option value="'.$v["p3"].'">$'.$v["p3"].'</option>
 			<option value="'.$v["p4"].'">$'.$v["p4"].'</option>
 		</select>';
+		$precios.='<script>(function(){$(".precio").numeric();}());';
+		$precios.='$(".cantidad, .precio").keyup(function(e){
+			//para el <th>
+			row=$(this).parent().parent();
+			cantidad=row.find(".cantidad").val()*1;
+			precio=row.find(".precio").val()*1;
+			total=cantidad*precio;
+			//escribe el total
+			row.find(".total").html(total);
+		});</script>';
 		
 		//$id es el id de evento proveniente de la busqueda
 		$elementos.='
@@ -46,7 +56,7 @@ try{
 			<td style="background-color:#FFF;"><input type="hidden" class="id_item" value="'.$v["id_item"].'" /><input type="hidden" class="id_evento" value="'.$idCot.'" /><input type="hidden" class="id_articulo" value="'.$v["id_articulo"].'" /><input type="hidden" class="id_paquete" value="" /></td>
 			<td><input class="cantidad" type="text" size="7" onkeyup="cambiar_cant('.$id.');" value="'.$v["cantidad"].'" /></td>
 			<td><input class="articulo_nombre text_full_width" onkeyup="art_autocompletar('.$id.');" value="'.$v["nombre"].'" /></td>
-			<td>'.$precios.'<span class="precio" >'.$v["precio"].'</span></td>
+			<td>'.$precios.'$<input type="text" class="precio" value="'.$v["precio"].'" /></td>
 			<td>$<span class="total">'.$v["total"].'</span></td>
 			<td><span class="guardar_articulo" onclick="guardar_art('.$id.')"></span><span class="eliminar_articulo" onclick="eliminar_art('.$id.')"></span></td>
 		</tr>';
@@ -80,13 +90,23 @@ try{
 			<option value="'.$v["p3"].'">$'.$v["p3"].'</option>
 			<option value="'.$v["p4"].'">$'.$v["p4"].'</option>
 		</select>';
+		$precios.='<script>(function(){$(".precio").numeric();}());';
+		$precios.='$(".cantidad, .precio").keyup(function(e){
+			//para el <th>
+			row=$(this).parent().parent();
+			cantidad=row.find(".cantidad").val()*1;
+			precio=row.find(".precio").val()*1;
+			total=cantidad*precio;
+			//escribe el total
+			row.find(".total").html(total);
+		});</script>';
 		//$id es el id de evento proveniente de la busqueda
 		$elementos.='
 		<tr id="'.$id.'" class="lista_articulos verde_ok">
 			<td style="background-color:#FFF;"><input type="hidden" class="id_item" value="'.$v["id_item"].'" /><input type="hidden" class="id_evento" value="'.$idCot.'" /><input type="hidden" class="id_articulo" value="" /><input type="hidden" class="id_paquete" value="'.$v["id_paquete"].'" /></td>
 			<td><input class="cantidad" type="text" size="7" onkeyup="cambiar_cant('.$id.');" value="'.$v["cantidad"].'" /></td>
 			<td><input class="articulo_nombre text_full_width" onkeyup="art_autocompletar('.$id.');" value="'.$v["nombre"].'" /></td>
-			<td>'.$precios.'<span class="precio" >'.$v["precio"].'</span></td>
+			<td>'.$precios.'$<input type="text" class="precio" value="'.$v["precio"].'" /></td>
 			<td>$<span class="total">'.$v["total"].'</span></td>
 			<td><span class="guardar_articulo" onclick="guardar_art('.$id.')"></span><span class="eliminar_articulo" onclick="eliminar_art('.$id.')"></span></td>
 		</tr>';

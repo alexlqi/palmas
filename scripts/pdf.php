@@ -25,7 +25,6 @@ $heightCarta=960;
 $widthCarta=660;
 $celdas=12;
 $widthCell=$widthCarta/$celdas;
-
 $mmCartaH=pxtomm($heightCarta);
 $mmCartaW=pxtomm($widthCarta);
 ob_start();
@@ -45,7 +44,7 @@ h1{
 </style>
 <table style="width:100%;border-bottom:<?php echo pxtomm(2); ?> solid #000;" cellpadding="0" cellspacing="0" >
     <tr>
-		 <td style="width:55%; text-align:left"><img src="../img/laspalmas/logo.jpg" height="100" /></td>
+		 <td style="width:55%; text-align:left"><img src="../<?php echo $_SESSION["logo"]; ?>" style="width:200px;" /></td>
          <td style="width:45%; text-align:left; padding-bottom:5px;">
          	<div style="width:100%; text-align:right;font-size:18px;">FOLIO N&ordm; <?php echo '0767'; ?></div>
             <p style="margin:0;text-align:justify;font-size:16px;">Banquetes, coffee break, bocadillos, renta de sillas, brincolines, mesas, carpas, medio servicio y todo para su fiesta</p>

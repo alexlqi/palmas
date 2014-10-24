@@ -173,7 +173,7 @@ html, body{
 	top: 10px;
 	right: 10px;
 }
-.volver, .nueva, .guardar, .modificar, .guardar_pivote, .guardar_individual, .guardar_referenciado{
+.volver, .nueva, .guardar, .modificar, input.eliminar, .guardar_pivote, .guardar_individual, .guardar_referenciado{
 	padding:10px;
 }
 .guardar_individual{
@@ -286,6 +286,21 @@ td{
 }
 
 /*Configuración de contenidos*/
+#procesando{
+	display:none;
+	position:fixed;
+	bottom:10px;
+	right:10px;
+	background-color:#03F;
+	color:#FFF;
+	font-size:16px;
+	font-weight:bold;
+	z-index:100;
+	padding:20px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
 #contenido{
 	width:1000px;
 	margin:auto;

@@ -4,6 +4,7 @@ include("scripts/func_form.php");
 setlocale(LC_ALL,'');
 setlocale(LC_ALL,'es_MX');
 
+actInv($dsnw,$userw,$passw,$optPDO);
 //pendientes
 //- poner un formulario por articulos no devueltos
 
@@ -59,6 +60,7 @@ try{
 	$sqlInventario="SELECT
 		articulos.id_articulo,
 		articulos.nombre,
+		articulos.unidades,
 		cantidad
 	FROM almacen_inventario
 	INNER JOIN articulos ON almacen_inventario.id_articulo=articulos.id_articulo
@@ -68,6 +70,7 @@ try{
 	foreach($res->fetchAll(PDO::FETCH_ASSOC) as $v){
 		$id=$v["id_articulo"];
 		$inventarioCant["nombre"][$id]=$v["nombre"];
+		$inventarioCant["unidades"][$id]=$v["unidades"];
 		$inventarioCant["total"][$id]=$v["cantidad"];
 	}
 	
@@ -90,9 +93,10 @@ try{
 	
 	//para las entradas
 	$sqlEveCheck="SELECT 
-		*
+		eventos.*
 	FROM eventos
-	WHERE eventos.id_empresa=$empresaid AND estatus=2 AND fechaevento BETWEEN '$inicioMes' AND '$finMes';";
+	INNER JOIN almacen_entradas ON eventos.id_evento=almacen_entradas.id_evento
+	WHERE eventos.id_empresa=$empresaid AND estatus=2 AND eventos.fechaevento BETWEEN '$inicioMes' AND '$finMes' AND entro=0 GROUP BY eventos.id_evento;";
 	$res=$bd->query($sqlEveCheck);
 	if($res->rowCount()>0){
 		foreach($res->fetchAll(PDO::FETCH_ASSOC) as $v){
@@ -121,7 +125,8 @@ try{
 	$sqlEveCheck="SELECT 
 		*
 	FROM eventos
-	WHERE id_empresa=$empresaid AND estatus=2 AND fechaevento BETWEEN '$inicioMes' AND '$finMes' ;";
+	INNER JOIN almacen_salidas ON eventos.id_evento=almacen_salidas.id_evento
+	WHERE eventos.id_empresa=$empresaid AND estatus=2 AND fechaevento BETWEEN '$inicioMes' AND '$finMes' AND salio=0 GROUP BY eventos.id_evento;";
 	$res=$bd->query($sqlEveCheck);
 	if($res->rowCount()>0){
 		foreach($res->fetchAll(PDO::FETCH_ASSOC) as $v){
@@ -129,9 +134,11 @@ try{
 			unset($v["id_evento"]);
 			$eventos["salidas"][$id]=$v;
 			$obj=$bd->query("SELECT 
-				*
+				almacen_salidas.*,
+				articulos.unidades
 			FROM almacen_salidas
-			WHERE id_evento='$id' AND id_empresa=$empresaid;");
+			INNER JOIN articulos ON almacen_salidas.id_articulo = articulos.id_articulo
+			WHERE id_evento='$id' AND almacen_salidas.id_empresa=$empresaid AND almacen_salidas.termino=0;");
 			$i=0;
 			foreach($obj->fetchAll(PDO::FETCH_ASSOC) as $item){
 				$eventos["salidas"][$id]["items"][$i]=$item;
@@ -348,70 +355,75 @@ td{
   <div id="inventario">
   	
   </div>
+<!-- ENTRADAS A INVENTARIO -->
   <div id="entradas">
   	<form id="entradas_form" class="formularios">
     	<h3 class="titulo_form">Alta de artículos en almacén</h3>
     	<input type="hidden" name="id_empresa" value="<?php empresa(); ?>" />
     	<label class="">Artículo:</label><select class="id_articulo" name="id_articulo">
-        	<option selected="selected" value="">Elige una opcion</option>
+        	<option selected="selected" data-unidades="" value="">Elige una opcion</option>
             <?php //aqui se ponen los articulos 
+			$unidades=array();
+			foreach($inventarioCant["unidades"] as $id=>$v){
+				$unidades[$id]=$v;
+			}
 			foreach($inventarioCant["nombre"] as $id=>$v){
-				echo '<option value="'.$id.'">'.$v.'</option>';
+				echo '<option value="'.$id.'" data-unidades="'.$unidades[$id].'">'.$v.'</option>';
 			}
 			?>
         </select>
-        <label class="">Cantidad:</label><input type="text" class="cantidad" name="cantidad" />
+        <label class="">Cantidad:</label><input type="text" class="cantidad" name="cantidad" /><label class="unidades"></label>
         <input type="button" class="b_entrada" data-id="#entradas_form" value="guardar" />
     </form>
-    <div class="formularios">
-    	<h3 class="titulo_form">Checklist de artículos entregados</h3>
-        <table>
+    <div class="formularios" style="height:300px; overflow:auto;">
+    	<h3 class="titulo_form" style="margin-top:15px;">Checklist de artículos entregados</h3>
+        <table style="margin-top:15px;">
             <tr>
             	<th>Evento</th>
                 <th>Fecha evento</th>
                 <th>Acciones</th>
             </tr>
-            <div class="checklist">
-                <?php //escribir la lista de los eventos 
-				$formas="";
-				foreach($eventos["entradas"] as $ind=>$v){
-					echo '<tr>';
-					echo '<td>'.$v["nombre"].'</td>';
-					echo '<td>'.varFechaAbreviada($v["fechaevento"]).'</td>';
-					echo '<td>';
-					if(strtotime($today)>=strtotime($v["fechadesmont"])){
-						echo '<abbr title="Ver Detalle"><img src="img/lista.png" height="30" class="checar" data-list="lista'.$ind.'" /></abbr>';
-					}else{
-						echo '<strong>Disponible hasta: '.varFechaAbreviada($v["fechadesmont"]).'</strong>';
-					}
-					echo '</td>';
-					echo '</tr>';
-					//generar la tabla para mostrar los articulos a sacar
-					$tabla='<table style="margin:5px auto;">';
-					$tabla.="<tr><th>ÁREA</th><th>FAMILIA</th><th>SUBFAMILIA</th><th>ARTICULO</th><th>CANTIDAD</th><th>REGRESARON</th></tr>";
-					if(isset($v["items"])){
-						foreach($v["items"] as $d){
-							$tabla.='<tr>';
-							$tabla.='<td>'.$d["area"].'</td>';
-							$tabla.='<td>'.$d["familia"].'</td>';
-							$tabla.='<td>'.$d["subfamilia"].'</td>';
-							$tabla.='<td>'.$d["articulo"].'</td>';
-							$tabla.='<td class="cotejar">'.($d["cantidad"]-$d["regresaron"]).'</td>';
-							$tabla.='<td><input type="text" size="6" class="numerico" data-max="'.($d["cantidad"]-$d["regresaron"]).'" data-regresaron="'.$d["regresaron"].'" data-evento="'.$ind.'" data-art="'.$d["id_articulo"].'" value="0" /></td>';
-							$tabla.='</tr>';
-						}
-					}
-					$tabla.="</table>";
-					$tabla.='<div align="right"><input type="button" value="Reingresar" data-evento="'.$ind.'" class="reingresar"  /></div>';
-					
-					$formas.='<div style="display:none;" class="listas lista'.$ind.'">'.$tabla.'</div>';
-				}
-				?>
-            </div>
+			<?php //escribir la lista de los eventos 
+            $formas="";
+            foreach($eventos["entradas"] as $ind=>$v){
+                echo '<tr>';
+                echo '<td>'.$v["nombre"].'</td>';
+                echo '<td>'.varFechaAbreviada($v["fechaevento"]).'</td>';
+                echo '<td>';
+                if(strtotime($today)>=strtotime($v["fechadesmont"])){
+                    echo '<abbr title="Ver Detalle"><img src="img/lista.png" height="30" class="checar" data-list="lista'.$ind.'" /></abbr>';
+                }else{
+                    echo '<strong>Disponible hasta: '.varFechaAbreviada($v["fechadesmont"]).'</strong>';
+                }
+                echo '</td>';
+                echo '</tr>';
+                //generar la tabla para mostrar los articulos a sacar
+                $tabla='<table style="margin:5px auto;">';
+                $tabla.="<tr><th>ÁREA</th><th>FAMILIA</th><th>SUBFAMILIA</th><th>ARTICULO</th><th>CANTIDAD</th><th>REGRESARON</th></tr>";
+                if(isset($v["items"])){
+                    foreach($v["items"] as $d){
+                        $tabla.='<tr>';
+                        $tabla.='<td>'.$d["area"].'</td>';
+                        $tabla.='<td>'.$d["familia"].'</td>';
+                        $tabla.='<td>'.$d["subfamilia"].'</td>';
+                        $tabla.='<td>'.$d["articulo"].'</td>';
+                        $tabla.='<td class="cotejar">'.($d["cantidad"]-$d["regresaron"]).'</td>';
+                        $tabla.='<td><input type="text" size="6" class="numerico" data-max="'.($d["cantidad"]-$d["regresaron"]).'" data-regresaron="'.$d["regresaron"].'" data-evento="'.$ind.'" data-art="'.$d["id_articulo"].'" value="0" /></td>';
+                        $tabla.='</tr>';
+                    }
+                }
+                $tabla.="</table>";
+                $tabla.='<div align="right"><input type="button" value="Reingresar" data-evento="'.$ind.'" class="reingresar"  /></div>';
+                
+                $formas.='<div style="display:none;" class="listas lista'.$ind.'">'.$tabla.'</div>';
+            }
+            ?>
         </table>
-        <?php echo $formas; ?>
     </div>
+    <?php echo $formas; ?>
   </div>
+  
+<!-- SALIDAS -->
   <div id="salidas">
   	<form id="salidas_form" class="formularios">
         <h3 class="titulo_form">Baja de artículos en almacén</h3>
@@ -456,20 +468,22 @@ td{
 					$tabla.="<tr><th>ÁREA</th><th>FAMILIA</th><th>SUBFAMILIA</th><th>ARTICULO</th><th>DISPONIBLE</th><th>CANTIDAD</th><th>AUTORIZAR</th></tr>";
 					if(isset($v["items"])){
 						foreach($v["items"] as $d){
-							$tabla.='<tr>';
-							$tabla.='<td>'.$d["area"].'</td>';
-							$tabla.='<td>'.$d["familia"].'</td>';
-							$tabla.='<td>'.$d["subfamilia"].'</td>';
-							$tabla.='<td>'.$d["articulo"].'</td>';
-							$tabla.='<td>'.$inventarioCant["total"][$d["id_articulo"]].'</td>';
-							$tabla.='<td>'.$d["cantidad"].'</td>';
-							$checked="";
-							if($d["salio"]==1){
-								$tabla.='<td><input type="checkbox" data-evento="'.$ind.'" data-art="'.$d["id_articulo"].'" checked="checked" disabled="disabled" /></td>';
-							}else{
-								$tabla.='<td><input type="checkbox" data-evento="'.$ind.'" data-art="'.$d["id_articulo"].'" $checked /></td>';
+							if(($d["cantidad"]*1)>0){
+								$tabla.='<tr>';
+								$tabla.='<td>'.$d["area"].'</td>';
+								$tabla.='<td>'.$d["familia"].'</td>';
+								$tabla.='<td>'.$d["subfamilia"].'</td>';
+								$tabla.='<td>'.$d["articulo"].'</td>';
+								$tabla.='<td>'.$inventarioCant["total"][$d["id_articulo"]].'</td>';
+								$tabla.='<td>'.$d["cantidad"].'</td>';
+								$checked="";
+								if($d["salio"]==1){
+									$tabla.='<td><input type="checkbox" data-evento="'.$ind.'" data-art="'.$d["id_salida"].'" checked="checked" disabled="disabled" /></td>';
+								}else{
+									$tabla.='<td><input type="checkbox" data-evento="'.$ind.'" data-art="'.$d["id_salida"].'" '.$checked.' /></td>';
+								}
+								$tabla.='</tr>';
 							}
-							$tabla.='</tr>';
 						}
 					}
 					$tabla.="</table>";

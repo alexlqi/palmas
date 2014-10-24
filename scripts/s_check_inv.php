@@ -32,7 +32,7 @@ try{
 		almacen.cantidad as totales,
 		almacen_inventario.cantidad as cantidad
 	FROM almacen_inventario
-	INNER JOIN almacen ON almacen_inventario.id_item = almacen.id_item
+	LEFT JOIN almacen ON almacen_inventario.id_item = almacen.id_item
 	INNER JOIN articulos ON almacen_inventario.id_articulo = articulos.id_articulo
 	WHERE almacen_inventario.id_empresa=$empresa;";
 	$res=$bd->query($sql);
